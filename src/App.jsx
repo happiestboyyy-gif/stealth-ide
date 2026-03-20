@@ -103,21 +103,42 @@ export default function App() {
   // 🔥 KEYBOARD SHORTCUTS
 useEffect(() => {
   const handler = (e) => {
-    // Ctrl + ← → Toggle Real/Code instantly
+    // 🚫 Ignore if user is typing in input/textarea/contentEditable
+    const tag = e.target.tagName;
+    const isTypingField =
+      tag === "INPUT" ||
+      tag === "TEXTAREA" ||
+      e.target.isContentEditable;
+
+    // ✅ Allow Ctrl+ArrowLeft EVEN inside input (your requirement)
     if (e.ctrlKey && e.key === "ArrowLeft") {
       e.preventDefault();
+      e.stopPropagation(); // 🔥 important
       setShowReal((prev) => !prev);
+      return;
     }
 
-    // Ctrl + Shift + X → Wipe DB
-    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "x") {
+    // ❌ Block dangerous delete if typing (optional safety)
+    if (
+      e.ctrlKey &&
+      e.shiftKey &&
+      e.key.toLowerCase() === "x"
+    ) {
       e.preventDefault();
-      deleteAllMessages();
+      e.stopPropagation();
+
+      const confirmDelete = window.confirm("Delete ALL messages?");
+      if (confirmDelete) {
+        deleteAllMessages();
+      }
     }
   };
 
-  window.addEventListener("keydown", handler);
-  return () => window.removeEventListener("keydown", handler);
+  // 🔥 KEY CHANGE: use capture phase
+  window.addEventListener("keydown", handler, true);
+
+  return () =>
+    window.removeEventListener("keydown", handler, true);
 }, []);
 
   const handleOpenTab = (file) => {
