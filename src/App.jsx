@@ -71,11 +71,37 @@ export default function App() {
         id: doc.id,
         ...doc.data(),
       }));
-      setMessages(msgs);
+      setMessages((prev) => {
+  const lastMsg = msgs[msgs.length - 1];
+
+  if (
+    lastMsg &&
+    lastMsg.sender !== USER_ID &&
+    window.innerWidth <= 768
+  ) {
+    // 🔥 VIBRATION
+    if ("vibrate" in navigator) {
+      navigator.vibrate([50, 50, 50]);
+    }
+
+    // 🔥 SOUND
+    const audio = new Audio("/notify.mp3");
+    audio.play().catch(() => {});
+  }
+
+  return msgs;
+});
     });
 
     return () => unsubscribe();
   }, []);
+  
+  useEffect(() => {
+  import("./firebase-messaging").then(({ initNotifications, listenMessages }) => {
+    initNotifications();
+    listenMessages();
+  });
+}, []);
 
   useEffect(() => {
     const typingRef = collection(db, "typing");

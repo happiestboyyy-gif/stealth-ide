@@ -5,8 +5,8 @@ export default function CodeEditor({ content, fontSize }) {
     <div className="h-full w-full bg-[#0d1117] rounded-xl overflow-hidden border border-gray-800 shadow-xl">
       <Editor
         height="100%"
-        defaultLanguage="javascript"
-        value={content}
+        defaultLanguage="javascript"  
+        value={content} 
         theme="vs-dark"
         options={{
           readOnly: true,
